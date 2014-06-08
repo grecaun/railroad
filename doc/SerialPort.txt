@@ -1,0 +1,41 @@
+SerialPort Documentation.
+
+The SerialPort class is a wrapper for an actual serialport that is used
+for communicating with a LOCONET.
+
+	#include "SerialPort.h"
+
+	SerialPort(int connect);
+
+		Constructor.
+
+		int connect  - tells the object whether or not it should establish a
+		               connection - 0 indicates yes, 1 indicates no
+
+	~SerialPort();
+
+		Destructor.
+
+	int send(byte* data, int size);
+
+		Method that sends data along the track.
+
+		byte* data  - data to be sent to LOCONET
+		int   size  - number of bytes to send
+
+		Returns number of bytes written.
+
+	int get_port() {return _port_fd;}
+
+		Method that gets the port fd used by the object for communication
+		with LOCONET.
+
+		Returns port fd.
+
+	byte* recieve(int size);
+
+		Method to receive data from LOCONET.
+
+		int size   - number of bytes to receive
+
+		Returns data received. Should be deleted.

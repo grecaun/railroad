@@ -1,0 +1,131 @@
+MailCar Documentation.
+
+MailCar is a threadsafe message passing system designed for the WWU
+Train Lab program being written in C++.  It is based upon the common
+producer consumer concurrency problem.  It uses a queue to pass
+messages between threads.
+
+	#include "MailCar.h"
+
+	int sendMail     (std::string  message);
+
+		Sends a message that is in std::string format. A zero return value
+		indicates success. Non zero indicates failure/error.
+
+	int sendMail	 (char *       message);
+
+		Sends a message that is of the char * variant. A zero return value
+		indicates success. Non zero indicates failure/error.
+
+	int sendMail     (int 		   prior, std::string  message);
+	
+		Sends a message that is in std::string format, with a priority value.
+		A 0 priority value indicates that the string takes no precedence over
+		other strings, any other value indicates priority. A zero return value
+		indicates success. Non zero indicates failure/error.
+
+	int sendMail	 (int 		   prior, char *       message);
+
+		Sends a message that is of the char * variant, with a priority value.
+		A 0 priority value indicates that the string takes no precedence over
+		other strings, any other value indicates priority. A zero return value
+		indicates success. Non zero indicates failure/error.
+
+	int checkForMail (std::string* message);
+
+		Checks the queue for any messages. If none are found, the return
+		value is 1. If one is found the return value is zero, and the
+		message in the queue was placed in the message string.
+
+	int waitForMail  (std::string* message);
+
+		Blocks until there is a message in the queue. A zero return value
+		indicates that message holds a message from the queue. Non zero
+		indicates error.
+
+	MailCar();
+
+		Constructor. Assumes there is no socket to listen in on.
+
+	MailCar(int socket);
+
+		Constructor. The socket is the socket you want the MailCar to listen
+		in on.
+
+	~MailCar();
+
+		Destructor.
+
+Example of use:
+
+	#include <thread>
+	#include <string>
+	#include <iostream>
+	#include "MailCar.h"
+
+	using namespace std;
+
+	class Receiver {
+	  public:
+	    void run(){
+	      std::string output;
+	      while (output != "quit") {
+	        if (myCar->waitForMail(&output)) {
+	          cout << "Something went wrong";
+	        } else {
+	          cout << output + '\n';
+	        }
+	      }
+	      return;
+	    }
+	    static void start_thread(void* t) {
+	      ((Receiver*) t)->run();
+	    }
+	    Receiver(MailCar *car){
+	      myCar = car;
+	    }
+	  private:
+	    MailCar *myCar;
+	};
+
+	class Transmitter {
+	  public:
+	    void run() {
+	      myCar->sendMail((char *)"Testing this out.");
+	      std::string newStr ("Why hallo there.");
+	      myCar->sendMail(newStr);
+	      newStr = "quit";
+	      myCar->sendMail(newStr);
+	      return;
+	    }
+	    static void start_thread(void* t){
+	      ((Transmitter*) t)->run();
+	    }
+	    Transmitter(MailCar *car){
+	      myCar = car;
+	    }
+	  private:
+	    MailCar *myCar;
+	};
+
+	int main (int argc, char* argv[])
+	{
+	  // create the mail car for sending messages, note that its a pointer
+	  MailCar *car = new MailCar();
+
+	  // initialize threads so they have the pointer
+	  Receiver* rx = new Receiver(car);
+	  Transmitter* tx = new Transmitter(car);
+
+	  //start the Receiver and transmitter thread.
+	  std::thread rx_thrd(Receiver::start_thread, rx);
+	  std::thread tx_thrd(Transmitter::start_thread, tx);
+
+	  // this thread just waits for the others to stop working
+	  rx_thrd.join();
+	  tx_thrd.join();
+
+	  // Free the memory.
+	  delete car;
+
+	}

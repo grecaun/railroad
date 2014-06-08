@@ -1,0 +1,73 @@
+Conductor Documentation.
+
+The Conductor class is one that controls transmission between other components
+of the program.  That is, it deals with passing messages from the receiver to
+the API and Logic components, and from those components to wherever it needs
+to go.
+
+	#include "Conductor.h"
+
+	C_*      -- indicates the integer index of a command that can be found in
+	            CMDS
+	R_*      -- indicates the integer index (+11) of a message that can be
+	            found in RCVS
+	NUM_C    -- number of C_* and R_* values
+	CMDS     -- String with all three letter combinations representing LOCO
+	            PROTO commands
+	RCVS     -- String with all four letter combinations representing RECEIVER
+	            PROTO commands
+
+	static void start_thread(void* t);
+
+		Method used when this object is used in a thread.  This object was
+		designed to be used with C++ inside a std::thread (#include <thread>).
+
+   	Conductor(SerialPort* usb, MailCar *input, MailCar *output, Track* track,
+   	          int APISock, atomic<bool>* exit, int debug);
+
+   		Constructor.
+
+   		SerialPort*   usb     is the SerialPort upon which the conductor will
+   		                      attempt to send messages.
+   		MailCar*      input   is the MailCar upon which the Conductor will
+   		                      listen for commands. In other words this is the
+   		                      MailCar the API and Logic components should be
+   		                      sending messages on.
+   		MailCar*      output  is the MailCar the Conductor uses to send messages
+   		                      to the Logic component.
+   		Track*        track   is the object that holds information about the track.
+   		int           APISock is the socket the API is connected upon. The Conductor
+   		                      will send messages on this.
+   		atomic<bool>* exit    is the boolean that will inform the Conductor that it
+   		                      should exit.
+
+   		The Conductor class makes no attempt to free/delete any objects that are
+   		passed to it as a pointer.
+
+   	~Conductor();
+
+   		Destructor.
+
+   	void conduct_loop();
+
+   		The method that loops and does all of the work inside the thread.
+
+
+Example code:
+
+	int main() {
+   		std::atomic<bool>* ext = new atomic<bool>(false);
+		/* Create message passers */
+		MailCar toConductor;
+		MailCar toLogic;
+		/* Create Track object */
+		Track track;
+		track.setup();
+		//create SerialPort and Conductor.
+		SerialPort usb(0);
+		Conductor  tx(&usb, &toConductor, &toLogic, &track, 0, ext, 0);
+		std::thread ct_thrd(Conductor::start_thread, &tx);
+		//wait for all threads to complete
+   		ct_thrd.join();
+   		return 0;
+	}

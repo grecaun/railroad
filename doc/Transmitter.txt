@@ -1,0 +1,59 @@
+Transmitter Documentation.
+
+The transmitter object is the means by which actual communication with the
+track is done.  Inside of this object are functions that are required to
+send specific commands related to controlling the trains.
+
+   #include "Transmitter.h"
+
+   Transmitter(SerialPort* usb, int debug);
+
+      The constructor for the Transmitter class. Requires a SerialPort that
+      will be used for transmitting commands to the track.  This must have
+      two functions:
+         send(byte* packet, int numbytes);
+         recieve(int length);
+      The debug integer is used for informing the transmitter whether or not
+      debug information should be output.
+
+   ~Transmitter();
+
+      Destructor.
+
+   int  transmit(char* commands);
+   
+      Deprecated command used to send a string of commands in the LOCOPROTO
+      format to the track.  This function parses the input.
+
+   void send_power(char* state);
+   
+      Sends a power command to the track, expects on or off for state given.
+
+   void send_request(char* addr);
+   
+      Sends a request for train with address to be given a slot.
+
+   void send_move(char* slot1, char* slot2);
+   
+      Sends a request for slot1 to be moved to slot2.
+
+   void send_turnout(char* turnout, char* state);
+   
+      Sends a request for the turnout to be changed to state. (T or C)
+
+   void send_speed(char* slot, char* speed);
+   
+      Sends a request for the train in slot to be set to speed. (0-126)
+
+   void send_direction(char* slot, char* dir);
+   
+      Sends a request for the train in slot to have its direction set to dir.
+      (F or R)
+
+   void send_sound(char* slot, char* state);
+   
+      Sends a sound request for the train in slot to change to state. (ON or OFF)
+
+   void send_stop(char* slot);
+
+      Sends a request for the train in slot to stop.

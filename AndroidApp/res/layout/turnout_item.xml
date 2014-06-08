@@ -1,0 +1,50 @@
+<!--
+/*
+   This file is part of RailRoad.
+
+   RailRoad is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, version 3 of the License.
+
+   RailRoad is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with RailRoad.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="10dp"
+    >
+    <TextView
+        android:id="@+id/turnoutLabel"
+        android:layout_width="85dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        />
+    <Button
+        android:id="@+id/turnoutThrow"
+        android:layout_width="65dp"
+        android:layout_height="32dp"
+        android:textSize="14sp"
+        android:text="@string/dothr"
+        style="?android:attr/buttonBarButtonStyle"
+        />
+    <Button
+        android:id="@+id/turnoutClose"
+        android:layout_width="65dp"
+        android:layout_height="32dp"
+        android:textSize="14sp"
+        android:text="@string/close"
+        style="?android:attr/buttonBarButtonStyle"
+        />
+</LinearLayout>
+

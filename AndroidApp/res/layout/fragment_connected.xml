@@ -1,0 +1,206 @@
+<!--
+/*
+   This file is part of RailRoad.
+
+   RailRoad is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, version 3 of the License.
+
+   RailRoad is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with RailRoad.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="edu.wwu.railroad.MainActivity$PlaceholderFragment"
+    android:orientation="vertical"
+    >
+   <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            style="?android:buttonBarStyle"
+            android:gravity="center"
+            >
+	        <Button
+	            android:id="@+id/powon"
+	            android:layout_width="wrap_content"
+	            android:layout_height="35dp"
+	            android:textSize="15sp"
+	            android:paddingRight="8dp"
+	            android:text="@string/powon"
+	            style="?android:buttonBarButtonStyle"
+	            />
+	        <Button
+	            android:id="@+id/powoff"
+	            android:layout_width="wrap_content"
+	            android:layout_height="35dp"
+	            android:textSize="15sp"
+	            android:text="@string/powoff"
+	            android:paddingLeft="8dp"
+	            android:paddingRight="8dp"
+	            style="?android:buttonBarButtonStyle"
+	            />
+	        <Button
+	            android:id="@+id/exit"
+	            android:layout_width="wrap_content"
+	            android:layout_height="35dp"
+	            android:textSize="15sp"
+	            android:text="@string/exit"
+	            android:paddingLeft="8dp"
+	            style="?android:buttonBarButtonStyle"
+	            />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="12dp"
+            >
+	        <TextView
+	           	android:layout_height="wrap_content"
+	           	android:layout_width="0dp"
+	           	android:layout_weight="1"
+	            android:text="@string/trainOne"
+	            android:textSize="20sp"
+	            />
+	        <Button
+	            android:id="@+id/trainOneSnd"
+	            android:layout_height="35dp"
+	            android:layout_width="wrap_content"
+	            android:text="@string/sound"
+	            android:textSize="15sp"
+	            style="?android:attr/buttonBarButtonStyle"
+	            />
+        </LinearLayout>
+        <LinearLayout
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            style="?android:attr/buttonBarStyle"
+            >
+            <Button
+                android:id="@+id/trainOneRev"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="15sp"
+                android:text="@string/rev"
+                style="?android:attr/buttonBarButtonStyle"
+                />
+            <Button
+	            android:id="@+id/trainOneEStp"
+	            android:layout_height="35dp"
+	            android:layout_width="wrap_content"
+	            android:text="@string/stop"
+	            android:textSize="15sp"
+	            style="?android:attr/buttonBarButtonStyle"
+	            />
+            <Button
+                android:id="@+id/trainOneFwd"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="15sp"
+                android:text="@string/fwd"
+                style="?android:attr/buttonBarButtonStyle"
+                />
+        </LinearLayout>
+        <SeekBar
+            android:id="@+id/trainOneSpeed"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:max="126"
+            android:layout_marginTop="10dp"
+            />
+		<LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="12dp"
+            >
+	        <TextView
+	           	android:layout_height="wrap_content"
+	           	android:layout_width="0dp"
+	           	android:layout_weight="1"
+	            android:text="@string/trainTwo"
+	            android:textSize="20sp"
+	            />
+	        <Button
+	            android:id="@+id/trainTwoSnd"
+	            android:layout_height="35dp"
+	            android:layout_width="wrap_content"
+	            android:text="@string/sound"
+	            android:textSize="15sp"
+	            style="?android:attr/buttonBarButtonStyle"
+	            />
+        </LinearLayout>
+        <LinearLayout
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            style="?android:attr/buttonBarStyle"
+            >
+            <Button
+                android:id="@+id/trainTwoRev"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="15sp"
+                android:text="@string/rev"
+                style="?android:attr/buttonBarButtonStyle"
+                />
+            <Button
+	            android:id="@+id/trainTwoEStp"
+	            android:layout_height="35dp"
+	            android:layout_width="wrap_content"
+	            android:text="@string/stop"
+	            android:textSize="15sp"
+	            style="?android:attr/buttonBarButtonStyle"
+	            />
+            <Button
+                android:id="@+id/trainTwoFwd"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:textSize="15sp"
+                android:text="@string/fwd"
+                style="?android:attr/buttonBarButtonStyle"
+                />
+        </LinearLayout>
+        <SeekBar
+            android:id="@+id/trainTwoSpeed"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:max="126"
+            android:layout_marginTop="10dp"
+            />
+    </LinearLayout>
+    <GridView
+        android:id="@+id/turnoutGrid"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="5dp"
+        android:numColumns="auto_fit"
+        android:columnWidth="215dp"
+        android:layout_marginTop="10dp"
+        />
+</LinearLayout>

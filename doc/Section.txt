@@ -1,0 +1,56 @@
+Section Documentation.
+
+This class represents a section.  In other words, its a section as explained
+in the layout.txt documentation file.
+
+  #include "Section.h"
+
+  class nextSect {
+    public:
+      int sensor;
+      int sectNum;
+  };
+
+  Section(int type, int number, nextSect* sects, Turnout* turnouts);
+
+    Constructor.
+
+    int       type      Integer representing the type of section this is.
+    int       number    Number representing the section number.
+    nextSect* sects     Array of nextSects. I.e. sections that are adjacent to
+                        this section.
+    Turnout*  turnouts  Array of turnouts within this section (if any).
+
+  ~Section();
+
+    Destructor. Does not destroy turnouts and sects arrays.
+
+  int isYardTerm()
+
+    Returns 1 if this is a YardTerm section.
+    0 if not.
+
+  int isSimple()
+
+    Returns 1 if this is a Simple section.
+    0 if not.
+
+  int isTurnCross()
+
+    Returns 1 if this is a TurnCross section.
+    0 if not.
+
+  int isTurnout()
+
+    Returns 1 if this is a Turnout section.
+    0 if not.
+
+  int isTrainYard()
+
+    Returns 1 if this is a TrainYard section.
+    0 if not.
+
+  int isCross()
+
+    Returns 1 if this is a Cross section.
+    0 if not.

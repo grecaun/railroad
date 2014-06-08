@@ -1,0 +1,48 @@
+VBuffer Documentation.
+
+The VBuffer object is a buffer used to store strings. The max size of said
+buffer is set within the VBuffer.h file.
+
+	#include "VBuffer.h"
+
+	void  add(char c);
+
+		Adds the uppercase version of c to the buffer.
+
+	void  add(char* c);
+
+		Adds the uppercase version of c to the buffer.
+
+	void  clear();
+
+		Sets all characters in the buffer to the EOS character.
+
+	int   clear_thru(char c);
+
+		Clears the front of the buffer up to and including c.
+
+	int   clear_upto(char c);
+
+		Clears the front of the buffer up to but not including c.
+
+	char* get_buf();
+
+		Returns a copy of the string. Must be cleaned up afterwards.
+
+	char* get_frto(char c1, char* c2, int size);
+
+		Attempts to find a string (being no more than size in length) between
+		c1 and any character in c2.
+
+	char* get_to(char* c, int size);
+
+		Attempts to find a string (being no more than size in length) before
+		c1.
+
+	int   size();
+
+		Returns the length of the buffer.
+
+	void  print();
+
+		Debug method that prints the buffer.

@@ -1,0 +1,72 @@
+Train Documentation.
+
+This is the class representing a train.
+
+  #include "Train.h"
+
+  Train(int slot, int num);
+
+    Constructor.
+
+    int   slot    - slot number this train is on
+    int   num     - number for this train
+
+  ~Train();
+
+    Destructor.
+
+  int      isLocked ();
+
+    Method to check if the item is locked. 0 if locked, else unlocked.
+
+  int      lock     ();
+
+    Method that locks the train.
+
+  int      unlock   ();
+
+    Method that unlocks the train.
+
+  bool     isAssoc  (int sens);
+
+    Method to check if a sensor is associated with a train at sens.
+
+  Section* getAssoc (int sens);
+
+    Method that gets the Section object associated with a sensor.
+    Returns null if not associated.
+
+  int      reserve  (int numahead, int sens);
+
+    Method that reserves sections for numahead sections. Does this based upon
+    the sensor given.
+
+  int      free     (int numbehind, int sens);
+
+    Method that unreserves sections for numbehind sections. Does this based upon
+    the sensor given.
+
+  int      getSpeed ();
+
+    Method that returns the speed of the train.
+
+  void     updSpeed (int speed);
+
+    Method to set the speed of the train.
+
+  int      getDir   ();
+
+    Method that returns the direction the train is going. 1 is forward, 0 is stopped
+    -1 is reverse.
+
+  void     changeDir(int dir);
+
+    Changes direction of a train. 0 stopped, < 0 reverse, > 0 forward.
+
+  int      getSlot()
+
+    Returns the slot associated with the train.
+
+  int      getNumber()
+
+    Returns the number associated with the train.

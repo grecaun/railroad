@@ -1,0 +1,48 @@
+Turnout Documentation.
+
+This class represents a turnout.
+
+  #include "Turnout.h"
+
+  Turnout();
+
+    Constructor. Doesn't set values.
+
+  ~Turnout();
+
+    Destructor.
+
+  int  setNumber(int number);
+
+    Sets the number associated with the turnout.
+
+    Returns TO_NPSET if the number was set.
+            0 if no problems.
+
+  int  getNumber();
+
+    Gets the number associated with the turnout.
+
+  void setState (int state);
+
+    Sets the state associated with the turnout. > 0 = closed, otherwise thrown.
+
+  int  getState ();
+
+    Gets the state associated with the turnout. 1 = closed, -1 = thrown.
+
+  int  lock();
+
+    Locks the turnout.
+    Returns   TRCK_ALRDY if already locked.
+              0 if successful
+
+  int  unlock();
+
+    Unlocks the turnout.
+    Returns   TRCK_ALRDY if already unlocked.
+              0 if successful
+
+  int  isLocked();
+
+    Returns 0 if unlocked, else locked.

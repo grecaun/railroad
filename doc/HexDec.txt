@@ -1,0 +1,27 @@
+HexDec Documentation
+
+This class is a class that has helper functions for converting
+integers to hex and vice versa.
+
+  #include "HexDec.h"
+
+  byte decFFhex(int dec);
+
+    Converts the decimal into a HEX (byte);
+
+  byte decFFhex_lo(int dec);
+
+    Converts the dec into a HEX with the highest bit masked to zero.
+
+  byte decFFhex_hi(int dec);
+
+    Converts the dec into a HEX shifted right 7 bits.
+
+  byte compute_checksum(byte* msg, int size);
+
+    Create the checksum given the byte array and its size.
+
+  byte* create_packet(byte* cmd, int size);
+
+    Returns a packet that consists of the cmd passed with the checksum
+    appended to the packet.

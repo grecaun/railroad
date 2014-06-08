@@ -1,0 +1,58 @@
+Receiver Documentation.
+
+The Receiver class is meant to be an intermediary class that reads messages from
+a SerialPort object, parses said information, and sends all relevant information
+to the Conductor.
+
+	#include "Receiver.h"
+
+	TIMEBTWNTICK	-- Value representing the time (in milliseconds) to expect between
+	                   ticks of a sensor.
+
+	static void start_thread(void* r);
+
+		Method used when this object is used in a thread.  This object was
+		designed to be used with C++ inside a std::thread (#include <thread>).
+
+	Receiver(SerialPort* usb, MailCar *output, int numSens,
+	         std::atomic<bool>* exit, int debug);
+
+		Constructor.
+
+		SerialPort*        usb     the SerialPort connected to the track that the
+		                           Receiver receives messages from.
+		MailCar*           output  the MailCar object the receiver sends messages to.
+		int                numSens The number of sensors on the track.
+		std::atomic<bool>* exit    boolean representing whether or not the thread
+		                           should terminate
+		int                debug   integer representing whether or not debug mode should
+		                           be used
+
+		The Receiver class makes no attempt to free/delete any objects that are
+	   	passed to it as a pointer.
+
+	~Receiver();
+
+		Destructor.
+
+	void recieve_loop();
+
+		The method that loops and does all of the work inside the thread.
+
+Example code:
+
+	int main() {
+   		std::atomic<bool>* ext = new atomic<bool>(false);
+		/* Create message passers */
+		MailCar toConductor;
+		/* Create Track object */
+		Track track;
+		track.setup();
+		//create SerialPort and Conductor.
+		SerialPort usb(0);
+		Receiver   rx(&usb, &toConductor, track.getNumSensors(), ext, 0);
+   		std::thread rx_thrd(Receiver::start_thread, &rx);
+		//wait for all threads to complete
+   		ct_thrd.join();
+   		return 0;
+	}

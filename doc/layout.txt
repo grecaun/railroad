@@ -1,0 +1,103 @@
+This document contains information regarding the formatting of the layout.xml file.
+(If the executable is ./runtrain, then the xml file should be ./data/layout.xml)
+
+This file would probably not be considered a proper XML file.
+
+There are four types of elements found within the document.
+
+    <numSensors>  The number of sensors for the track.
+    <numSections> The number of sections for the track.
+    <numTurnouts> The number of turnouts for the track.
+    <section>     An element describing a section.
+
+There are 6 different Section Types, each indicated by an integer (0-5):
+
+0 - Yard Termination
+
+	The point at which the yard terminates.  Contains the sensors that lead to each section
+	in the trainyard. (Which should in turn lead to the trainyard section.)
+
+		==
+		==
+		==
+		==
+
+1 - Straight
+
+	A straight rail. No turnouts. Two sensors.
+
+	    =================
+
+2 - Cross
+
+	Two straight sections that intersect. Four sensors.
+	When listing reservation numbers and sensor numbers, the order in which they should be
+	provided is that in which opposites are paired together.
+
+	           ||
+	           ||
+	           ||
+	    =================
+	    	   ||
+	    	   ||
+	    	   ||
+
+3 - Turnout
+
+	A turnout. Two states, thrown/closed. Three sensors. May be linked to another turnout.
+	When listing reservation numbers and sensor numbers, the order in which they should be
+	provided is choke, closed, (i.e. the point in which all trains pass through) thrown.
+
+                  //
+		         //
+		        //
+	    =================
+
+
+4 - Trainyard
+
+	The entrance/exit to a trainyard. Many turnouts linked together.
+	When listing reservation numbers and sensor numbers, the order in which they should be
+	provided is choke, thrown, thrown, ..., closed.
+
+
+             //   //   //
+		    //   //   //
+           //   //   //
+	    =================
+
+5 - Turn Cross
+
+	A section that has a turnout and a cross contained in it. Five sensors.
+	When listing reservation numbers and sensor numbers, the order in which they should be
+	provided is N/S, N/S, W, E, T. (See below for indications.)
+
+		N          T
+		||        //
+		||       //
+		||		//
+   W===================E
+		||
+		||
+		||
+		S
+
+Inside the section element you will find a number of elements.
+
+	<number>    Indicates the number corresponding to the section.
+	<type>      Indicates the type (see above) of the section.
+	<nextSect>  Defines the section (and sensor) pair leading from this section
+				to another.
+	<turnout>   (Optional) Defines information related to a turnout found in the section.
+	<sectLink>  (Optional) Indicates if a section is linked to another (used for turnouts).
+
+The nextSect element has subelements as follows:
+
+	<id>       ID related to the order of the section (see above)
+	<sensor>   Sensor that connects this section to the next.
+	<sectNum>  Number corresponding to the next section.
+
+The turnout element has subelements as follows:
+
+	<id>   The ID for sorting turnouts when a section has more than one.
+	<num>  The number corresponding to the turnout itself.

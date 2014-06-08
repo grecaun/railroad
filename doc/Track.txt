@@ -1,0 +1,113 @@
+Track Documentation.
+
+The Track class is one that represents the track as an object. It pulles
+information from a layout.xml file and constructs itself.
+
+	#include "Track.h"
+
+	Track();
+
+		Constructor.
+
+	~Track();
+
+		Destructor.
+
+	void setup();
+
+		Method used to actually set up the track. Parses layout.xml.
+
+	int move_train       (int slot, int front, int back);
+
+		Method to move a train in slot so that it occupies front and
+		back.
+
+		Returns 0 if successful
+				TRCK_NOTSETUP (found in constants.h) if track not setup.
+
+	int chspd_train      (int slot, int speed);
+
+		Method to update the train in slots speed.
+
+		Returns 0 if successful
+				TRCK_NOTSETUP if track not setup.
+				TRCK_NOTRN    if unable to find train.
+
+	int chdir_train      (int slot, int dir);
+
+		Method to change the direction of the train in slot.
+
+		Returns 0 if successful
+				TRCK_NOTSETUP if track not setup.
+				TRCK_NOTRN    if unable to find train.
+
+	int lock_train       (int slot, int state);
+
+		Method to set the lock on the train in slot to state.
+
+		Returns 0 if successful
+				TRCK_NOTSETUP if track not setup.
+				TRCK_NOTRN    if unable to find train.
+
+	int is_train_locked  (int slot);
+
+		Method to check if a train in slot is locked.
+
+		Returns 0 if unlocked
+				1 if locked
+				TRCK_NOTSETUP if track not setup.
+				TRCK_NOTRN    if unable to find train.
+
+	int move_turnout     (int tout, int toc);
+
+		Method to change the state of turnout tout to toc.
+		toc > 0 indicates closed else thrown.
+
+		Returns 0 if successful
+				TRCK_NOTSETUP if track not setup.
+				TRCK_NOTOUT   if turnout does not exist.
+
+	int lock_turnout     (int tout, int state);
+
+		Method to set the lock on turnout tout to state.
+		0 = unlocked else locked.
+
+		Returns 0 if successful
+				TRCK_NOTSETUP if track not setup.
+				TRCK_NOTOUT   if turnout does not exist.
+
+	int is_turnout_locked(int tout);
+
+		Method to check if turnout tout is locked.
+
+		Returns 0 if unlocked
+				1 if locked
+				TRCK_NOTSETUP if track not setup.
+				TRCK_NOTOUT   if turnout does not exist.
+
+	Train* getAssoc(int sens);
+
+		Gets a train object if one is associated with the sensor given.
+
+		Returns nullptr if none found, otherwise Train that can be found
+		in a section adjacent to the sensor.
+
+	void   lockEither();
+
+		Method that will randomly chose a train to lock.
+
+	int getNumSections()
+
+		Method to get the number of sections in the track.
+
+	int getNumSensors()
+
+		Method to get the number of sensors in the track.
+
+	int getNumTurnouts()
+
+		Method to get the number of turnouts in the track.
+
+	int getNumTrains()
+
+		Method to get the number of trains in the track.
