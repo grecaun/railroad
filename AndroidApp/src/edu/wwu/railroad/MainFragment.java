@@ -1,15 +1,21 @@
 package edu.wwu.railroad;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +50,11 @@ import android.widget.Toast;
  * @version 1.0
  */
 public class MainFragment extends Fragment implements OnClickListener {
-	private static final String       TAG = "MainFragment";
+	private static final String       TAG  = "MainFragment";
+	private static       String       port = "54320";
+	private static       String       ip   = "";
+	
+    private static final Pattern tokenPattern = Pattern.compile("[^\\[]*?\\[([^\\[\\]\\|]*)\\|([^\\[\\]\\|]*)\\]");
 
 	@Override
 	public void onCreate(Bundle aSavedInstanceState) {
@@ -58,24 +68,79 @@ public class MainFragment extends Fragment implements OnClickListener {
         View rootView = aInflater.inflate(R.layout.fragment_main, aContainer, false);
 		Button conBtn = (Button)rootView.findViewById(R.id.connectButton);
 		conBtn.setOnClickListener(this);
+		EditText ipAdd  = (EditText)rootView.findViewById(R.id.connectIP);
+		ipAdd.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void afterTextChanged(Editable text) {
+				ip = text.toString();
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+			
+		});
+		if (ip.length() > 0) {
+			ipAdd.setText(ip);
+		}
+		
+		EditText portNo = (EditText)rootView.findViewById(R.id.connectPort);
+		portNo.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void afterTextChanged(Editable text) {
+				port = text.toString();
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+
+			@Override
+			public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+			
+		});
+		if (port.length() > 0) {
+			portNo.setText(port);
+		}
+		
         return rootView;
     }
 
 	@Override
 	public void onClick(View aView) {
 		// Get the IP the user has typed in and pass it to a new thread.
-		EditText ipBox = (EditText) getView().findViewById(R.id.connectIP);
-		Log.d(TAG, "Attempting to connect to "+ipBox.getText());
-		new ConThread(this).execute(ipBox.getText().toString());
+		EditText ipBox   = (EditText) getView().findViewById(R.id.connectIP);
+		EditText portBox = (EditText) getView().findViewById(R.id.connectPort);
+		Log.d(TAG, "Attempting to connect to "+ipBox.getText()+" with port number "+portBox.getText());
+		new ConnectionTask(this).execute(ipBox.getText().toString(),portBox.getText().toString());
 	}
-
-	public void changeView() {
+	
+	/**
+	 * Method that tells the fragment to change the view to the controls view.
+	 */
+	public void showControls() {
 		if (SockInfo.socket != null) {
 			ConFrag newFrag = new ConFrag();
 			getFragmentManager().beginTransaction().replace(R.id.container, newFrag).commit();
 		} else {
 			Toast.makeText(getActivity(), "Unable to Connect.", Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	/**
+	 * Method that tells the fragment to show the verification view.
+	 */
+	public void showVerification() {
+		if (SockInfo.socket == null) { 
+			Toast.makeText(getActivity(), "Unable to Connect.", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		Log.d(TAG, "About to set the new fragment...");
+		VerificationFragment vf  = new VerificationFragment();
+		getFragmentManager().beginTransaction().replace(R.id.container, vf).commit();
 	}
 
     /**
@@ -85,10 +150,11 @@ public class MainFragment extends Fragment implements OnClickListener {
      * @author James Sentinella
      * @version 1.0
      */
-    static class ConThread extends AsyncTask<String, Void, Void> {
-    	MainFragment frag;
+    public static class ConnectionTask extends AsyncTask<String, Void, Void> {
+    	private MainFragment frag;
+    	private boolean      verify = false;
 
-    	public ConThread(MainFragment caller){
+    	public ConnectionTask(MainFragment caller){
     		this.frag = caller;
     	}
 
@@ -97,20 +163,43 @@ public class MainFragment extends Fragment implements OnClickListener {
 			InetAddress serverAddr;
 			try {
 				serverAddr = InetAddress.getByName(params[0]);
-				SockInfo.socket = new Socket(serverAddr, SockInfo.PORTNO);
+				int portNumber = Integer.parseInt(params[1]);
+				SockInfo.socket = new Socket(serverAddr, portNumber);
 				SockInfo.out = new PrintWriter(new OutputStreamWriter(SockInfo.socket.getOutputStream()), true);
+				// Check if we need to verify ourself.
+				BufferedReader input = new BufferedReader(new InputStreamReader(SockInfo.socket.getInputStream()));
+				String received = input.readLine();
+				Log.d(TAG, "Input received: "+received);
+				Matcher tokenMatcher = tokenPattern.matcher(received);
+				if (tokenMatcher.find()) {
+					String command = tokenMatcher.group(1);
+					String state   = tokenMatcher.group(2);
+					Log.d(TAG, "Command: "+command+" state: "+state);
+					if (command.equalsIgnoreCase("ATOKEN") &&
+					    state.equalsIgnoreCase("RQS")) {
+						verify = true;
+					}
+				}
 			} catch (UnknownHostException e) {
 				SockInfo.socket = null;
 			} catch (IOException e) {
 				SockInfo.socket = null;
+			} catch (Exception e) {
+				SockInfo.socket = null;
+				Log.e(TAG, "Something went wrong. Most likely insufficient arguments given to execute method.");
 			}
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
-			frag.changeView();
+			if (verify) {
+				frag.showVerification();
+			} else {
+				frag.showControls();
+			}
 		}
 
     }
+    
 }

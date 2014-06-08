@@ -27,15 +27,16 @@ import android.os.Bundle;
  * @version 1.0
  */
 public class MainActivity extends Activity {
+    private static final String MAINFRAGTAG = "MAINFRAG";
 
-    @Override
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new MainFragment())
+                    .add(R.id.container, new MainFragment(), MAINFRAGTAG)
                     .commit();
         }
 

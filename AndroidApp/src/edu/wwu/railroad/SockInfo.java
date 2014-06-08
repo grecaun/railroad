@@ -28,9 +28,6 @@ import java.net.Socket;
  * @version 1.0
  */
 public class SockInfo {
-	// Port for connecting to API.
-	public static final int    PORTNO = 54320;
-
 	// Variables for dealing with the socket.
 	public static Socket      socket;
 	public static PrintWriter out;
@@ -54,5 +51,23 @@ public class SockInfo {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Method that closes the output stream and the socket and 
+	 * makes them null.
+	 */
+	public static void close() {
+		if (out != null) {
+			out.close();
+			out = null;
+		}
+		if (socket != null) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+			}
+			socket=null;
+		}
 	}
 }

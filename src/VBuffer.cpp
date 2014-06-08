@@ -120,6 +120,7 @@ char* VBuffer::get_frto(char c1, char *c2, int size){
 
    for(i=0; i<_size; i++) {
       if(_buf[i] == c1) {                     // c1 was found, search for a max of size chars
+         c2ix = 0;
          for(++i, j=0; i<_size && j<size+1; i++, j++) {
             c2ix = -1;
             while (c2[++c2ix]) {              // c2 must be null terminated

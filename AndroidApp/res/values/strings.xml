@@ -20,19 +20,33 @@
 <resources>
 
     <string name="app_name">Railroad</string>
+    
+    <!-- Strings related to the ConFrag -->
     <string name="trainOne">Train: 411</string>
     <string name="trainTwo">Train: 1204</string>
     <string name="speed">Speed</string>
     <string name="stop">Stop</string>
     <string name="sound">Sound</string>
-    <string name="connect">Connect</string>
-	<string name="dothr">Throw</string>
+    <string name="dothr">Throw</string>
     <string name="close">Close</string>
     <string name="powon">Track On</string>
     <string name="powoff">Track Off</string>
-    <string name="IPHint">IP Address of API</string>
     <string name="exit">Shut Down</string>
     <string name="fwd">Forward</string>
     <string name="rev">Reverse</string>
-
+    
+    <!-- Strings related to MainFragment -->
+    <string name="connect">Connect</string>
+    <string name="ipHint">API\'s address</string>
+    <string name="ipLabel">Address:</string>
+    <string name="portHint">API\'s port number</string>
+    <string name="portLabel">Port Number:</string>
+    
+	<!-- Strings related to the verification Dialog -->
+	<string name="verificationDialog">Verification</string>
+	<string name="tokenLabel">Token:</string>
+	<string name="tokenHint">Please enter verification token.</string>
+	<string name="tokenOkay">Okay</string>
+	<string name="tokenCancel">Cancel</string>
+	
 </resources>

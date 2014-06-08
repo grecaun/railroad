@@ -1,7 +1,4 @@
-#! /usr/bin/python2.7
-# $Date: 2014-06-03 09:50:17 -0700 (Tue, 03 Jun 2014) $
-# $Author: weara $
-# $Revision: 126 $
+#! /usr/bin/env python2.7
 #
 # WWU TrainLab API
 # Fall 2013 through Spring 2014
@@ -26,6 +23,8 @@ import socket
 import select
 import re
 import argparse
+import string
+import random
 
 #Port For Train Communication
 TPORT = 54321
@@ -41,11 +40,21 @@ SIZE  = 2056
 #Regular expressions for validating input.
 RE_CHECKVALID = re.compile("(?P<match>[^\]]*\])")
 RE_CHECKEXIT  = re.compile("\[term\]", re.IGNORECASE)
+RE_CHECKCMD   = re.compile("\[(?P<command>[^\|\]]*)\|(?P<token>[^\|\]]*)\]")
 
 # Array of Sockets associated with clients connected
 inlist           = []
 cons             = [sys.stdin]   # Array of all FD's to use select on
 validatedClients = []
+toBeValidated    = []
+
+class nonValidatedClient:
+	def __init__(self, socket, token):
+		self.socket = socket
+		self.token  = token.upper()
+
+def token_gen(size=10, chars=string.ascii_letters+string.digits):
+	return ''.join(random.choice(chars) for _ in range(size))
 
 def main():
 	keepAlive = 1;
@@ -87,7 +96,11 @@ def main():
 					client, address = apisock.accept()
 					cons.append(client)
 					inlist.append(client)
+					clientToken = token_gen()
+					toBeValidated.append(nonValidatedClient(client, clientToken))
+					client.send("[ATOKEN|RQS]\n");
 					print "API: Clients connected: " + str(len(inlist))
+					print "API: Token for client is: " + clientToken
 				except socket.error:
 					print "API: Unable to accept client connection."
 			elif sock == trainsock: # Train Controlling Software communicating with API
@@ -100,9 +113,46 @@ def main():
 			elif sock == sys.stdin:
 				line = sys.stdin.readline()
 				if line == "quit\n" or line == "q\n" or line == "exit\n":
-					trainsock.send("[ext]")
+					trainsock.send("[ext]\n")
 					keepAlive = 0
 					break
+			elif sock not in validatedClients:                          # Client hasn't be validated yet
+				try:
+					data = sock.recv(SIZE, socket.MSG_PEEK)
+					newdata = data.replace('\n','').replace('\r','')
+					if len(data) > 0 and newdata == '':					# Pull out newlines and linefeeds if that's all there.
+						data = sock.recv(len(data))
+					elif newdata:
+						allMsg = RE_CHECKVALID.match(newdata)			# If ending bracket, get command
+						if allMsg and allMsg.group("match"):
+							data = sock.recv(len(allMsg.group("match")))
+							newdata = data.replace('\n','').replace('\r','')
+							cmdVal = RE_CHECKCMD.match(newdata)         # check if we received a proper command
+							if cmdVal and cmdVal.group("command") and cmdVal.group("token"):
+								thisToken = cmdVal.group("token")       # get the token supplied
+								validToken = False
+								if cmdVal.group("command").upper() == "CTOKEN":
+									for client in toBeValidated:        # look through all the clients that haven't been validated
+										if client.socket == sock and thisToken.upper() == client.token:
+											validToken = True           # if they're the one sending and the token is correct
+											toBeValidated.remove(client)# validate them
+											validatedClients.append(sock)
+											break
+								if validToken == False:                 # send proper message based upon the above
+									print "API: Invalid token received: " + thisToken
+									sock.send("[ATOKEN|INV]\n")
+								else:
+									print "API: Valid token accepted."
+									sock.send("[ATOKEN|ACC]\n")
+							if debug:
+								print "API: Client token should be: " + newdata
+						elif len(newdata) > 512:                        # if we've gotten 512 characters, and no , then throw it all away
+							data = sock.recv(SIZE)
+					elif not data:
+						close(sock)                                     # if they send us nothing, we close them
+				except socket.error:                                    # on socket error, we close them
+					close(sock)
+					continue
 			else:
 				try:
 					data = sock.recv(SIZE, socket.MSG_PEEK)
