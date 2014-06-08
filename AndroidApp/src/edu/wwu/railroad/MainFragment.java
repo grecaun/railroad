@@ -12,6 +12,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.app.Fragment;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -50,9 +53,13 @@ import android.widget.Toast;
  * @version 1.0
  */
 public class MainFragment extends Fragment implements OnClickListener {
-	private static final String       TAG  = "MainFragment";
-	private static       String       port = "54320";
-	private static       String       ip   = "";
+	private static final String TAG      = "MainFragment";
+	private static final String PORTPREF = "PORT";
+	private static final String IPPREF   = "IPADDRESS";
+	private              String port     = "54320";
+	private              String ip       = "";
+	
+	private SharedPreferences pPrefs;
 	
     private static final Pattern tokenPattern = Pattern.compile("[^\\[]*?\\[([^\\[\\]\\|]*)\\|([^\\[\\]\\|]*)\\]");
 
@@ -65,6 +72,15 @@ public class MainFragment extends Fragment implements OnClickListener {
     @Override
     public View onCreateView(LayoutInflater aInflater, ViewGroup aContainer,
             Bundle aSavedInstanceState) {
+    	pPrefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+    	port = pPrefs.getString(PORTPREF, "");
+    	ip   = pPrefs.getString(IPPREF, "");
+    	if (port.length() < 1) {
+    		Editor edit = pPrefs.edit();
+    		port = "54320";
+    		edit.putString("PORTNO", port);
+    		edit.commit();
+    	}
         View rootView = aInflater.inflate(R.layout.fragment_main, aContainer, false);
 		Button conBtn = (Button)rootView.findViewById(R.id.connectButton);
 		conBtn.setOnClickListener(this);
@@ -74,6 +90,9 @@ public class MainFragment extends Fragment implements OnClickListener {
 			@Override
 			public void afterTextChanged(Editable text) {
 				ip = text.toString();
+				Editor edit = pPrefs.edit();
+				edit.putString(IPPREF, ip);
+				edit.commit();
 			}
 
 			@Override
@@ -93,6 +112,9 @@ public class MainFragment extends Fragment implements OnClickListener {
 			@Override
 			public void afterTextChanged(Editable text) {
 				port = text.toString();
+				Editor edit = pPrefs.edit();
+				edit.putString(PORTPREF, port);
+				edit.commit();
 			}
 
 			@Override
@@ -152,7 +174,8 @@ public class MainFragment extends Fragment implements OnClickListener {
      */
     public static class ConnectionTask extends AsyncTask<String, Void, Void> {
     	private MainFragment frag;
-    	private boolean      verify = false;
+    	private int          verify = -1; // 1 = verify, 0 = don't, -1 implies
+    									  // no message received
 
     	public ConnectionTask(MainFragment caller){
     		this.frag = caller;
@@ -165,21 +188,8 @@ public class MainFragment extends Fragment implements OnClickListener {
 				serverAddr = InetAddress.getByName(params[0]);
 				int portNumber = Integer.parseInt(params[1]);
 				SockInfo.socket = new Socket(serverAddr, portNumber);
+				SockInfo.socket.setSoTimeout(1000);
 				SockInfo.out = new PrintWriter(new OutputStreamWriter(SockInfo.socket.getOutputStream()), true);
-				// Check if we need to verify ourself.
-				BufferedReader input = new BufferedReader(new InputStreamReader(SockInfo.socket.getInputStream()));
-				String received = input.readLine();
-				Log.d(TAG, "Input received: "+received);
-				Matcher tokenMatcher = tokenPattern.matcher(received);
-				if (tokenMatcher.find()) {
-					String command = tokenMatcher.group(1);
-					String state   = tokenMatcher.group(2);
-					Log.d(TAG, "Command: "+command+" state: "+state);
-					if (command.equalsIgnoreCase("ATOKEN") &&
-					    state.equalsIgnoreCase("RQS")) {
-						verify = true;
-					}
-				}
 			} catch (UnknownHostException e) {
 				SockInfo.socket = null;
 			} catch (IOException e) {
@@ -188,14 +198,43 @@ public class MainFragment extends Fragment implements OnClickListener {
 				SockInfo.socket = null;
 				Log.e(TAG, "Something went wrong. Most likely insufficient arguments given to execute method.");
 			}
+			if (SockInfo.socket != null) {
+				try {
+					// Check if we need to verify ourself.
+					BufferedReader input = new BufferedReader(new InputStreamReader(SockInfo.socket.getInputStream()));
+					String received = input.readLine();
+					Log.d(TAG, "Input received: "+received);
+					Matcher tokenMatcher = tokenPattern.matcher(received);
+					if (tokenMatcher.find()) {
+						String command = tokenMatcher.group(1);
+						String state   = tokenMatcher.group(2);
+						Log.d(TAG, "Command: "+command+" state: "+state);
+						if (command.equalsIgnoreCase("ATOKEN")) {
+							if (state.equalsIgnoreCase("RQS")) {
+								verify = 1;
+							} else if (state.equalsIgnoreCase("NTK")) {
+								verify = 0;
+							}
+						}
+					}
+				} catch (Exception e) {
+					Log.e(TAG, "No message from API. Most likely non verifying.");
+				}
+			}
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
-			if (verify) {
+			if (verify == 1) {
 				frag.showVerification();
+			} else if (verify == 0){
+				frag.showControls();
 			} else {
+				if (SockInfo.socket != null) {
+					Log.e(TAG, "API didn't respond/didn't send token command."
+							+ " Assuming non validating API.");
+				}
 				frag.showControls();
 			}
 		}
