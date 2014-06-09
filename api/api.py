@@ -138,12 +138,12 @@ def main():
 											toBeValidated.remove(client)# validate them
 											validatedClients.append(sock)
 											break
-								if validToken == False:                 # send proper message based upon the above
-									print "API: Invalid token received: " + thisToken
-									sock.send("[ATOKEN|INV]\n")
-								else:
-									print "API: Valid token accepted."
-									sock.send("[ATOKEN|ACC]\n")
+									if validToken == False:                 # send proper message based upon the above
+										print "API: Invalid token received: " + thisToken
+										sock.send("[ATOKEN|INV]\n")
+									else:
+										print "API: Valid token accepted."
+										sock.send("[ATOKEN|ACC]\n")
 							if debug:
 								print "API: Client token should be: " + newdata
 						elif len(newdata) > 512:                        # if we've gotten 512 characters, and no , then throw it all away

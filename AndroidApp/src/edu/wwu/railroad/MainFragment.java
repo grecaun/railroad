@@ -176,6 +176,7 @@ public class MainFragment extends Fragment implements OnClickListener {
     	private MainFragment frag;
     	private int          verify = -1; // 1 = verify, 0 = don't, -1 implies
     									  // no message received
+    	private Socket       pSock;
 
     	public ConnectionTask(MainFragment caller){
     		this.frag = caller;
@@ -183,42 +184,46 @@ public class MainFragment extends Fragment implements OnClickListener {
 
 		@Override
 		protected Void doInBackground(String... params) {
-			InetAddress serverAddr;
-			try {
-				serverAddr = InetAddress.getByName(params[0]);
-				int portNumber = Integer.parseInt(params[1]);
-				SockInfo.socket = new Socket(serverAddr, portNumber);
-				SockInfo.socket.setSoTimeout(1000);
-				SockInfo.out = new PrintWriter(new OutputStreamWriter(SockInfo.socket.getOutputStream()), true);
-			} catch (UnknownHostException e) {
-				SockInfo.socket = null;
-			} catch (IOException e) {
-				SockInfo.socket = null;
-			} catch (Exception e) {
-				SockInfo.socket = null;
-				Log.e(TAG, "Something went wrong. Most likely insufficient arguments given to execute method.");
-			}
-			if (SockInfo.socket != null) {
+			synchronized (frag) {
+				InetAddress serverAddr;
+				if (frag == null || SockInfo.socket != null) { return null; }
 				try {
-					// Check if we need to verify ourself.
-					BufferedReader input = new BufferedReader(new InputStreamReader(SockInfo.socket.getInputStream()));
-					String received = input.readLine();
-					Log.d(TAG, "Input received: "+received);
-					Matcher tokenMatcher = tokenPattern.matcher(received);
-					if (tokenMatcher.find()) {
-						String command = tokenMatcher.group(1);
-						String state   = tokenMatcher.group(2);
-						Log.d(TAG, "Command: "+command+" state: "+state);
-						if (command.equalsIgnoreCase("ATOKEN")) {
-							if (state.equalsIgnoreCase("RQS")) {
-								verify = 1;
-							} else if (state.equalsIgnoreCase("NTK")) {
-								verify = 0;
+					serverAddr = InetAddress.getByName(params[0]);
+					int portNumber = Integer.parseInt(params[1]);
+					SockInfo.socket = new Socket(serverAddr, portNumber);
+					SockInfo.socket.setSoTimeout(1000);
+					pSock = SockInfo.socket;
+					SockInfo.out = new PrintWriter(new OutputStreamWriter(SockInfo.socket.getOutputStream()), true);
+				} catch (UnknownHostException e) {
+					SockInfo.socket = null;
+				} catch (IOException e) {
+					SockInfo.socket = null;
+				} catch (Exception e) {
+					SockInfo.socket = null;
+					Log.e(TAG, "Something went wrong. Most likely insufficient arguments given to execute method.");
+				}
+				if (SockInfo.socket != null) {
+					try {
+						// Check if we need to verify ourself.
+						BufferedReader input = new BufferedReader(new InputStreamReader(SockInfo.socket.getInputStream()));
+						String received = input.readLine();
+						Log.d(TAG, "Input received: "+received);
+						Matcher tokenMatcher = tokenPattern.matcher(received);
+						if (tokenMatcher.find()) {
+							String command = tokenMatcher.group(1);
+							String state   = tokenMatcher.group(2);
+							Log.d(TAG, "Command: "+command+" state: "+state);
+							if (command.equalsIgnoreCase("ATOKEN")) {
+								if (state.equalsIgnoreCase("RQS")) {
+									verify = 1;
+								} else if (state.equalsIgnoreCase("NTK")) {
+									verify = 0;
+								}
 							}
 						}
+					} catch (Exception e) {
+						Log.e(TAG, "No message from API. Most likely non verifying.");
 					}
-				} catch (Exception e) {
-					Log.e(TAG, "No message from API. Most likely non verifying.");
 				}
 			}
 			return null;
@@ -226,6 +231,7 @@ public class MainFragment extends Fragment implements OnClickListener {
 
 		@Override
 		protected void onPostExecute(Void result) {
+			if (frag == null || pSock != SockInfo.socket) { return; }
 			if (verify == 1) {
 				frag.showVerification();
 			} else if (verify == 0){
